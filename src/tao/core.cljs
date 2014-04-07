@@ -1,6 +1,6 @@
 (ns tao.core
   (:require-macros [cljs.core.async.macros :refer [go]]
-                   [tao.macros :refer [defstateroute]])
+                   [tao.core :refer [defstateroute]])
   (:require [goog.events :as events]
             [clojure.string :refer [split join replace trim]]
             [cljs.core.async :refer [put! <! chan]]

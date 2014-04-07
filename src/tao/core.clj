@@ -1,4 +1,4 @@
-(ns tao.macros)
+(ns tao.core)
 
 (defmacro defstateroute [name route params mappers]
   `(do
