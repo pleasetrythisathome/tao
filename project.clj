@@ -33,10 +33,10 @@
                 :output-dir "examples/basic/out"
                 :source-map true
                 :optimizations :none}}
-             {:id "hello"
-              :source-paths ["src" "examples/hello/src"]
+             {:id "om"
+              :source-paths ["src" "examples/om/src"]
               :compiler {
-                :output-to "examples/hello/main.js"
-                :output-dir "examples/hello/out"
+                :output-to "examples/om/main.js"
+                :output-dir "examples/om/out"
                 :source-map true
                 :optimizations :none}}]})
