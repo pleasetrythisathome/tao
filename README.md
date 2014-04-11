@@ -140,6 +140,10 @@ With enables hash-bang routes out of convenience and in the interest of keeping 
 
 Setting :push-state true (the default value) will use html5 push-state instead of hash-bang routes. This is the prefered choice and requires pushing matching routes from the server to the front end to correctly serve the app on page load. There are all sorts of reasons not to use hash-bang, but if you like, the option is there for you.
 
+## Disclaimer
+
+Tao is very much alpha software. Thoughts, comments, feature, and pull requests welcome.
+
 ## License
 
 Copyright © 2014 Dylan Butman
