@@ -26,6 +26,13 @@
                 :source-map "script/tests.simple.js.map"
                 :output-wrapper false
                 :optimizations :simple}}
+             {:id "basic"
+              :source-paths ["src" "examples/basic/src"]
+              :compiler {
+                :output-to "examples/basic/main.js"
+                :output-dir "examples/basic/out"
+                :source-map true
+                :optimizations :none}}
              {:id "hello"
               :source-paths ["src" "examples/hello/src"]
               :compiler {
