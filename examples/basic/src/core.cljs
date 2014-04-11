@@ -1,4 +1,4 @@
-(ns examples.hello.core
+(ns examples.basic.core
   (:require-macros [cljs.core.async.macros :refer [go]]
                    [tao.core :refer [deftao]])
   (:require [tao.core :as tao :include-macros true]
