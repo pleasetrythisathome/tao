@@ -120,7 +120,7 @@ To build and run the examples (basic, om)
 ```shell
 cd tao
 lein cljsbuild once *example*
-cd examples/hello
+cd examples/*example*
 python -m SimpleHTTPServer
 ```
 
