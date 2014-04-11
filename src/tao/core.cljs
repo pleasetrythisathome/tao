@@ -63,7 +63,7 @@
 (defn get-path [key translators]
   (conj (get-in translators [key :path]) key))
 
-(defn matcher->route [matcher route-params query-params]
+(defn matcher->route [matcher route-params]
   (let [parts (rest (split matcher "/")) ; drop leading space
         as-keys (map #(if (re-find #":" %)
                         (keyword (replace % #":" ""))
