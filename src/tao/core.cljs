@@ -54,7 +54,7 @@
          (. @history (replaceToken with-params))
          (. @history (setToken with-params))))))
 
-(def state-mappings (atom {}))
+(def state-mappings (atom []))
 
 (defn add-state-mapping [route translators]
   (swap! state-mappings conj [route translators]))
@@ -91,7 +91,7 @@
 
 (defn state->route [state]
   (let [mappings (map #(translate-state % state) @state-mappings)
-        route (first (filter identity mappings))]
+        route (last (filter identity mappings))]
     route))
 
 (defn translate-param [key translator param]
@@ -103,7 +103,6 @@
   (let [values (map #(translate-param % (% translators) (% params)) (keys translators))
         state (apply (partial deep-merge-with merge) values)]
     state))
-
 
 (defn update-history
   [{:keys [path new-state tag] :as tx-data}]
