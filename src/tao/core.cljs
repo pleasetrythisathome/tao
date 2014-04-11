@@ -34,8 +34,8 @@
                          new-route
                          (str new-route "?" query-string))]
        (if (= old-route new-route)
-         (. history (replaceToken with-params))
-         (. history (setToken with-params))))))
+         (. @history (replaceToken with-params))
+         (. @history (setToken with-params))))))
 
 (def state-mappings (atom {}))
 
