@@ -63,32 +63,33 @@
 (defn get-path [key translators]
   (conj (get-in translators [key :path]) key))
 
-(defn matcher->route [matcher args]
+(defn matcher->route [matcher route-params query-params]
   (let [parts (rest (split matcher "/")) ; drop leading space
         as-keys (map #(if (re-find #":" %)
                         (keyword (replace % #":" ""))
                         %) parts)
         subbed (map #(if (keyword? %)
-                       (% args)
+                       (% route-params)
                        %) as-keys)
-        route (join "/" subbed)
-        params (set (filter keyword? as-keys))
-        query-keys (filter #(not (% params)) (keys args))
-        query (select-keys args [query-keys])]
-    {:route route
-     :query query}))
+        route (join "/" subbed)]
+    route))
 
-(defn translate-state [[matcher {:keys [params query constants]}] state]
-  (let [translators (merge params query)
+(defn translate-state [[matcher {:keys [params query-params constants]}] state]
+  (let [translators (merge params query-params)
         korks (keys translators)
         values (map (fn [key] (let [translator (key translators)
                                    path (conj (:path translator) key)
                                    value (get-in state path)
                                    translated (when-let [tfn (:->route translator)]
                                                 (tfn value))]
-                               translated)) korks)]
-    (when (every? identity values)
-      (matcher->route matcher (zipmap korks values)))))
+                               translated)) korks)
+        as-map (zipmap korks values)
+        route-params (select-keys as-map (keys params))
+        query (select-keys as-map (keys query-params))]
+    (when (every? identity (vals route-params))
+      (let [route (matcher->route matcher route-params)]
+        {:route route
+         :query query}))))
 
 (defn state->route [state]
   (let [mappings (map #(translate-state % state) @state-mappings)
@@ -100,8 +101,14 @@
         processor (or (:->state translator) identity)]
     (assoc-in {} path (processor param))))
 
-(defn route->state [translators params]
-  (let [values (map #(translate-param % (% translators) (% params)) (keys translators))
+(defn route->state [{:keys [params query-params constants]
+                     :as opts
+                     :or {params {}
+                          query {}
+                          constants {}}} route-params]
+  (let [translators (merge params constants query-params)
+        route-with-query (merge (dissoc route-params :query-params) (:query-params route-params))
+        values (map #(translate-param % (% translators) (% route-with-query)) (keys translators))
         state (apply (partial deep-merge-with merge) values)]
     state))
 
