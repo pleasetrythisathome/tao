@@ -48,6 +48,38 @@ adding
 
 to the above example will set the browser history to /#/main
 
+## Query and Constants
+
+Query parameters can be defined arbitarily from route params.
+
+```clojure
+(deftao section "/:active"
+  {:chan nav-chan
+   :params {:active {:path []
+                     :->state keyword
+                     :->route name}}
+   :query-params {:search {:path []
+                           :->state identity
+                           :->route identity}}})
+```
+
+Updates to query params do not add to the history stack, and are thus a good way of separating which changes in application state should be treated as steps in navigation.
+
+Constants are additional peices of state that allow you to define additional information associated with a route.
+
+
+```clojure
+(deftao section "/:active"
+  {:chan nav-chan
+   :params {:active {:path []
+                     :->state keyword
+                     :->route name}}
+   :constants {:status {:path []
+                        :->state (constantly nil)}}})
+```
+
+Any navigation will result in :status being set to nil
+
 ## Om
 
 Integrating with Om is extremely simple
@@ -107,7 +139,6 @@ The code above and the examples use
 With enables hash-bang routes out of convenience and in the interest of keeping the examples simple.
 
 Setting :push-state true (the default value) will use html5 push-state instead of hash-bang routes. This is the prefered choice and requires pushing matching routes from the server to the front end to correctly serve the app on page load. There are all sorts of reasons not to use hash-bang, but if you like, the option is there for you.
-
 
 ## License
 
