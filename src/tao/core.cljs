@@ -34,8 +34,9 @@
        (events/listen hist EventType/NAVIGATE #(put! navigation %))
        (go
         (while true
-          (let [token (.-token (<! navigation))]
-            (secretary/dispatch! token))))
+          (let [nav (<! navigation)]
+            (when (.-isNavigation nav)
+              (secretary/dispatch! (.-token nav))))))
 
        (reset! history hist)
        (secretary/dispatch! (.getToken hist)))))
