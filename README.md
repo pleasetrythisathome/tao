@@ -98,6 +98,7 @@ setting tao/update-history as the tx-listen callback in om/root will update hist
 
 in app-view
 
+```clojure
 (defn app-view
   [app owner]
   (reify
@@ -112,6 +113,7 @@ in app-view
     (render [_]
       ;; render you app here
       )))
+```
 
 ## Examples
 
