@@ -2,7 +2,7 @@
 
 Tao enables two-way data binding between edn and browser history.
 
-Tao was designed with [Om](https://github.com/swannodette/om) in mind, but can be used in any system with edn i/o.
+Tao is a thin wrapper on top of [secretary](https://github.com/gf3/secretary). Although it was designed with [Om](https://github.com/swannodette/om) in mind, but can be used in any system with edn i/o.
 
 ## The Way
 
