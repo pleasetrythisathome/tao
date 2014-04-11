@@ -31,7 +31,7 @@
           title)]))))
 
 (defn app-view
-  [{:keys [active sections] :as app} owner]
+  [{:keys [active search sections] :as app} owner]
   (reify
     om/IWillMount
     (will-mount [this]
@@ -45,7 +45,8 @@
        [:div {:class "app"}
         [:div
          (map #(om/build button {:data % :app app} {:react-key (:id %)}) sections)]
-        [:input {:on-change #(om/update! app :search (.-value (.-target %)))}]]))))
+        [:input {:value search
+                 :on-change #(om/update! app :search (.-value (.-target %)))}]]))))
 
 
 (def nav-chan (chan))
