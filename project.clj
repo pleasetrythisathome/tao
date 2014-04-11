@@ -19,7 +19,8 @@
                  [org.clojure/clojurescript "0.0-2173"]
                  [org.clojure/core.async "0.1.278.0-76b25b-alpha"]
                  [secretary "1.1.0"]
-                 [om "0.5.3"]]
+                 [om "0.5.3"]
+                 [sablono "0.2.6"]]
 
   :plugins [[lein-cljsbuild "1.0.2"]]
 
