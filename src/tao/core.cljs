@@ -7,26 +7,43 @@
             [tao.utils :refer [deep-merge-with map->params log]]
             [secretary.core :as secretary :include-macros true :refer [defroute]])
   (:import goog.History
+           goog.history.Html5History
            goog.history.EventType))
 
 (enable-console-print!)
 
-(def history (History.))
+(def history (atom {}))
 
-(let [navigation (chan)]
-  (events/listen history EventType/NAVIGATE #(put! navigation %))
-  (go
-   (while true
-     (let [token (.-token (<! navigation))]
-       (secretary/dispatch! token)))))
+(defn init-history
+  ([] (init-history {}))
+  ([{:keys [push-state]
+     :or {push-state true}
+     :as opts}]
+     (let [hist (if push-state
+                  (let [h (Html5History.)]
+                    (.setUseFragment h false)
+                    (.setPathPrefix h "")
+                    (.setEnabled h true)
+                    h)
+                  (let [h (History.)]
+                    (.setEnabled h true)
+                    (secretary/set-config! :prefix "#")
+                    h))
+           navigation (chan)]
 
-(.setEnabled history true)
-(secretary/set-config! :prefix "#")
+       (events/listen hist EventType/NAVIGATE #(put! navigation %))
+       (go
+        (while true
+          (let [token (.-token (<! navigation))]
+            (secretary/dispatch! token))))
+
+       (reset! history hist)
+       (secretary/dispatch! (.getToken hist)))))
 
 (defn navigate!
   ([route] (navigate! route {}))
   ([route query]
-     (let [token (. history (getToken))
+     (let [token (. @history (getToken))
            old-route (first (split token "?"))
            new-route (str "/" route)
            query-string (map->params query)
