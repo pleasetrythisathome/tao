@@ -10,6 +10,7 @@
 (enable-console-print!)
 
 (def app-state (atom {:active nil
+                      :search ""
                       :sections [{:id :admin
                                   :title "Admin"}
                                  {:id :main
@@ -43,7 +44,8 @@
       (html
        [:div {:class "app"}
         [:div
-         (map #(om/build button {:data % :app app} {:react-key (:id %)}) sections)]]))))
+         (map #(om/build button {:data % :app app} {:react-key (:id %)}) sections)]
+        [:input {:on-change #(om/update! app :search (.-value (.-target %)))}]]))))
 
 
 (def nav-chan (chan))
@@ -52,7 +54,10 @@
   {:chan nav-chan
    :params {:active {:path []
                      :->state keyword
-                     :->route name}}})
+                     :->route name}}
+   :query-params {:search {:path []
+                           :->state identity
+                           :->route identity}}})
 
 ;; you should really use push-state and set up
 ;; your backend to forward all routes to the front end
