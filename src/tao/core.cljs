@@ -77,11 +77,20 @@
         route (first (filter identity mappings))]
     route))
 
+(defn translate-param [key translator param]
+  (let [path (conj (:path translator) key)
+        processor (or (:->state translator) identity)]
+    (assoc-in {} path (processor param))))
+
+(defn route->state [translators params]
+  (let [values (map #(translate-param % (% translators) (% params)) (keys translators))
+        state (apply (partial deep-merge-with merge) values)]
+    state))
+
+
 (defn update-history
   [{:keys [path new-state tag] :as tx-data}]
   (condp = tag
     :silent nil ;ignore
     (let [{:keys [route query]} (state->route new-state)]
       (navigate! route query))))
-
-(def nav-chan (chan))

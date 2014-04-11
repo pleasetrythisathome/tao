@@ -11,11 +11,5 @@
      (secretary.core/defroute ~name ~route {:as params#}
        (let [key# (cljs.core/keyword '~name)
              translators# (cljs.core/merge ~params ~query ~constants)
-             korks# (cljs.core/keys translators#)
-             values# (cljs.core/map #(let [path# (cljs.core/conj (cljs.core/get-in translators# [% :path]) %)
-                                           processor# (cljs.core/or (cljs.core/get-in translators# [% :->state]) cljs.core/identity)
-                                           value# (% params#)]
-                                       (cljs.core/assoc-in {} path# (processor# value#)))
-                                    korks#)
-             state# (cljs.core/apply (cljs.core/partial tao.utils/deep-merge-with cljs.core/merge) values#)]
+             state# (tao.core/route->state translators# params#)]
          (cljs.core.async/put! ~chan [key# state#])))))
