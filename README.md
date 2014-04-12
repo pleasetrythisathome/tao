@@ -14,6 +14,8 @@ Add tao to your ```project.clj``` ```:dependencies``` vector:
 
 Routes are created using the ```deftao [route opts]``` macro. Opts is a map containing a channel into which state translated from browser history is pushed, and a params map containing the params matched in the route, their path within the resulting state, and :->state and :->route translation functions.
 
+Tao is essentially a system for defining a functional transformations from state->history and history->state.
+
 This simple example that follows will print the route id and the generated state on navigation.
 
 ```clojure
@@ -38,15 +40,17 @@ This simple example that follows will print the route id and the generated state
 (tao/init-history {:push-state false})
 ```
 
-browser history can be updated using
+This is the history->state component. Underneath the hood, navigation events dispatch secretary routes, and the matched parameters are passed into the ```:->state``` transformation functions and then merged into a map at their ```:path``` and push into ```:chan``` as ```[:name state]```.
+
+Edn can be transformed into browser history using
 
 ```clojure
 (tao/update-history new-state)
 ```
 
-tao will match the last defined route with params in app state that evaluate to true
+Tao will map over all routes defined using ```deftao```, find the params in state and then apply their ```:->route``` functions. Tao will then match the last defined route where all translated params are non-nil.
 
-adding
+For example, adding
 
 ```clojure
 (tao/update-history {:new-state {:section :main}})
@@ -120,6 +124,8 @@ in app-view
       ;; render you app here
       )))
 ```
+
+Transactions tagged ```:silent``` are ignored by ```update-history```.
 
 ## Examples
 
