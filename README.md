@@ -4,6 +4,12 @@ Tao enables two-way data binding between edn and browser history.
 
 Tao is a thin wrapper on top of [secretary](https://github.com/gf3/secretary). Although it was designed with [Om](https://github.com/swannodette/om) in mind, but can be used in any system with edn i/o.
 
+## Installation
+
+Add tao to your ```project.clj``` ```:dependencies``` vector:
+
+```[pleasetrythisathome/tao "0.1.0-SNAPSHOT"]```
+
 ## The Way
 
 Routes are created using the ```deftao [route opts]``` macro. Opts is a map containing a channel into which state translated from browser history is pushed, and a params map containing the params matched in the route, their path within the resulting state, and :->state and :->route translation functions.
