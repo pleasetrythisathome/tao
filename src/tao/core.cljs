@@ -74,8 +74,8 @@
     {:route route
      :query query}))
 
-(defn translate-state [[matcher {:keys [params query constants]}] state]
-  (let [translators (merge params query)
+(defn translate-state [[matcher {:keys [params query-params constants validator]}] state]
+  (let [translators (merge params query-params)
         korks (keys translators)
         values (map (fn [key] (let [translator (key translators)
                                    path (conj (:path translator) key)
@@ -83,9 +83,11 @@
                                    translated (when value
                                                 (when-let [tfn (:->route translator)]
                                                  (tfn value)))]
-                               translated)) korks)]
-    (when (every? identity values)
-      (matcher->route matcher (zipmap korks values)))))
+                               translated)) korks)
+        kv (zipmap korks values)
+        validator (or validator #(every? identity (vals %)))]
+    (when (validator kv)
+      (matcher->route matcher kv))))
 
 (defn state->route [state]
   (let [mappings (map #(translate-state % state) @state-mappings)
