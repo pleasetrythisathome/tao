@@ -9,7 +9,7 @@
 
 (enable-console-print!)
 
-(def app-state (atom {:active nil
+(def app-state (atom {:active :admin
                       :search ""
                       :sections [{:id :admin
                                   :title "Admin"}
