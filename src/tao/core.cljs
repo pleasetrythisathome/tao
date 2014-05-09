@@ -80,8 +80,9 @@
         values (map (fn [key] (let [translator (key translators)
                                    path (conj (:path translator) key)
                                    value (get-in state path)
-                                   translated (when-let [tfn (:->route translator)]
-                                                (tfn value))]
+                                   translated (when value
+                                                (when-let [tfn (:->route translator)]
+                                                 (tfn value)))]
                                translated)) korks)]
     (when (every? identity values)
       (matcher->route matcher (zipmap korks values)))))
