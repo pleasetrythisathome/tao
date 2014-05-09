@@ -21,7 +21,7 @@
      :as opts}]
      (let [hist (if push-state
                   (let [h (Html5History.)]
-                    (.setUseFragment h false)
+                    (.setUseFragment h true)
                     (.setPathPrefix h "")
                     (.setEnabled h true)
                     h)
