@@ -1,5 +1,5 @@
 (ns tao.core
-  (:require-macros [cljs.core.async.macros :refer [go]]
+  (:require-macros [cljs.core.async.macros :refer [go go-loop]]
                    [tao.core :refer [deftao]])
   (:require [goog.events :as events]
             [clojure.string :refer [split join replace trim]]
@@ -32,10 +32,11 @@
            navigation (chan)]
        (reset! history hist)
        (events/listen hist EventType/NAVIGATE #(put! navigation %))
-       (go
-        (while true
-          (let [token (.-token (<! navigation))]
-            (secretary/dispatch! token)))))))
+       (go-loop []
+                (when-let [token (.-token (<! navigation))]
+                  (secretary/dispatch! token)
+                  (recur)))
+       (secretary/dispatch! (.getToken hist)))))
 
 (defn navigate!
   ([route] (navigate! route {}))
