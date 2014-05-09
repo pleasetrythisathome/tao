@@ -1,4 +1,4 @@
-(defproject pleasetrythisathome/tao "0.1.1-SNAPSHOT"
+(defproject pleasetrythisathome/tao "0.1.1"
   :description "Two way data binding for browser history"
   :url "http://github.com/pleasetrythisathome/tao"
   :license {:name "Eclipse"
