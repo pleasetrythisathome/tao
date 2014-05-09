@@ -70,7 +70,7 @@
         route (join "/" subbed)
         params (set (filter keyword? as-keys))
         query-keys (filter #(not (% params)) (keys args))
-        query (select-keys args [query-keys])]
+        query (select-keys args query-keys)]
     {:route route
      :query query}))
 
