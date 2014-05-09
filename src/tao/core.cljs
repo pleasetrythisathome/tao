@@ -30,16 +30,12 @@
                     (secretary/set-config! :prefix "#")
                     h))
            navigation (chan)]
-
+       (reset! history hist)
        (events/listen hist EventType/NAVIGATE #(put! navigation %))
        (go
         (while true
-          (let [nav (<! navigation)]
-            (when (.-isNavigation nav)
-              (secretary/dispatch! (.-token nav))))))
-
-       (reset! history hist)
-       (secretary/dispatch! (.getToken hist)))))
+          (let [token (.-token (<! navigation))]
+            (secretary/dispatch! token)))))))
 
 (defn navigate!
   ([route] (navigate! route {}))
@@ -63,33 +59,32 @@
 (defn get-path [key translators]
   (conj (get-in translators [key :path]) key))
 
-(defn matcher->route [matcher route-params]
+(defn matcher->route [matcher args]
   (let [parts (rest (split matcher "/")) ; drop leading space
         as-keys (map #(if (re-find #":" %)
                         (keyword (replace % #":" ""))
                         %) parts)
         subbed (map #(if (keyword? %)
-                       (% route-params)
+                       (% args)
                        %) as-keys)
-        route (join "/" subbed)]
-    route))
+        route (join "/" subbed)
+        params (set (filter keyword? as-keys))
+        query-keys (filter #(not (% params)) (keys args))
+        query (select-keys args [query-keys])]
+    {:route route
+     :query query}))
 
-(defn translate-state [[matcher {:keys [params query-params constants]}] state]
-  (let [translators (merge params query-params)
+(defn translate-state [[matcher {:keys [params query constants]}] state]
+  (let [translators (merge params query)
         korks (keys translators)
         values (map (fn [key] (let [translator (key translators)
                                    path (conj (:path translator) key)
                                    value (get-in state path)
                                    translated (when-let [tfn (:->route translator)]
                                                 (tfn value))]
-                               translated)) korks)
-        as-map (zipmap korks values)
-        route-params (select-keys as-map (keys params))
-        query (select-keys as-map (keys query-params))]
-    (when (every? identity (vals route-params))
-      (let [route (matcher->route matcher route-params)]
-        {:route route
-         :query query}))))
+                               translated)) korks)]
+    (when (every? identity values)
+      (matcher->route matcher (zipmap korks values)))))
 
 (defn state->route [state]
   (let [mappings (map #(translate-state % state) @state-mappings)
@@ -101,14 +96,8 @@
         processor (or (:->state translator) identity)]
     (assoc-in {} path (processor param))))
 
-(defn route->state [{:keys [params query-params constants]
-                     :as opts
-                     :or {params {}
-                          query {}
-                          constants {}}} route-params]
-  (let [translators (merge params constants query-params)
-        route-with-query (merge (dissoc route-params :query-params) (:query-params route-params))
-        values (map #(translate-param % (% translators) (% route-with-query)) (keys translators))
+(defn route->state [translators params]
+  (let [values (map #(translate-param % (% translators) (% params)) (keys translators))
         state (apply (partial deep-merge-with merge) values)]
     state))
 
