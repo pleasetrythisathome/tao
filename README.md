@@ -8,7 +8,7 @@ Tao is a thin wrapper on top of [secretary](https://github.com/gf3/secretary). A
 
 Add tao to your ```project.clj``` ```:dependencies``` vector:
 
-```[pleasetrythisathome/tao "0.1.0-SNAPSHOT"]```
+```[pleasetrythisathome/tao "0.1.1"]```
 
 ## The Way
 
@@ -57,6 +57,15 @@ For example, adding
 ```
 
 to the above example will set the browser history to /#/main
+
+You can define custom validator function that takes a hashmap ```params``` that contains entries for ```(merge params query-params constants)```. If the validator returns true, the route will be considered a potential match. The last valid route is always matched.
+
+The default validator:
+
+```clojure
+(fn [params]
+  (every? identity (vals params)))
+```
 
 ## Query and Constants
 
