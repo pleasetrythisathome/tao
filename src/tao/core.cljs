@@ -75,7 +75,7 @@
     {:route route
      :query query}))
 
-(defn translate-state [[matcher {:keys [params query-params constants validator]}] state]
+(defn translate-state [[matcher {:keys [params query-params validator]}] state]
   (let [translators (merge params query-params)
         korks (keys translators)
         values (map (fn [key] (let [translator (key translators)
@@ -95,14 +95,19 @@
         route (last (filter identity mappings))]
     route))
 
-(defn translate-param [key translator param]
-  (let [path (conj (:path translator) key)
+(defn translate-param [k translator v]
+  (let [path (conj (:path translator) k)
         processor (or (:->state translator) identity)]
-    (assoc-in {} path (processor param))))
+    (assoc-in {} path (processor v))))
 
-(defn route->state [translators params]
-  (let [values (map #(translate-param % (% translators) (% params)) (keys translators))
-        state (apply (partial deep-merge-with merge) values)]
+(defn route->state [{:keys [params query-params constants]} route-params]
+  (let [translators (merge params query-params constants)
+        params-and-query (merge (dissoc route-params :query-params) (:query-params route-params))
+        state (reduce-kv (fn [state k v]
+                            (->> k
+                                 (get params-and-query)
+                                 (translate-param k v)
+                                 (deep-merge-with merge state))) {} translators)]
     state))
 
 (defn update-history
