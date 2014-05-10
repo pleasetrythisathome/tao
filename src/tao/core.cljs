@@ -4,10 +4,11 @@
   (:require [goog.events :as events]
             [clojure.string :refer [split join replace trim]]
             [cljs.core.async :refer [put! <! chan]]
-            [tao.utils :refer [deep-merge-with map->params log]]
+            [tao.utils :refer [deep-merge-with map->params log tap]]
             [secretary.core :as secretary :include-macros true :refer [defroute]])
   (:import goog.History
            goog.history.Html5History
+           goog.history.Html5History.TokenTransformer
            goog.history.EventType))
 
 (enable-console-print!)
@@ -20,11 +21,19 @@
      :or {push-state true}
      :as opts}]
      (let [hist (if push-state
-                  (let [h (Html5History.)]
-                    (.setUseFragment h true)
-                    (.setPathPrefix h "")
-                    (.setEnabled h true)
-                    h)
+                  (let [transformer (TokenTransformer.)]
+                    (set! (.. transformer -retrieveToken)
+                          (fn [path-prefix location]
+                            (str (.-pathname location) (.-search location))))
+                    (set! (.. transformer -createUrl)
+                          (fn [token path-prefix location]
+                            (str path-prefix token)))
+
+                    (let [h (Html5History. js/window transformer)]
+                     (.setUseFragment h false)
+                     (.setPathPrefix h "")
+                     (.setEnabled h true)
+                     h))
                   (let [h (History.)]
                     (.setEnabled h true)
                     (secretary/set-config! :prefix "#")
@@ -41,7 +50,7 @@
 (defn navigate!
   ([route] (navigate! route {}))
   ([route query]
-     (let [token (. @history (getToken))
+     (let [token (.getToken @history)
            old-route (first (split token "?"))
            new-route (str "/" route)
            query-string (map->params query)
