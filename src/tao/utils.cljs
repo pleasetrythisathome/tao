@@ -4,7 +4,11 @@
 (defn log
   "logs a cljs stuff as js stuff for inspection"
   [& args]
-  (.log js/console (clj->js (map clj->js args))))
+  (.apply (.-log js/console) js/console (clj->js (map clj->js args))))
+
+(defn tap [v]
+  (log v)
+  v)
 
 (defn map->params [query]
   (let [params (map #(name %) (keys query))
