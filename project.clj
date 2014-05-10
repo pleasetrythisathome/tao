@@ -1,8 +1,10 @@
-(defproject pleasetrythisathome/tao "0.1.1"
+(defproject pleasetrythisathome/tao "0.1.2"
   :description "Two way data binding for browser history"
   :url "http://github.com/pleasetrythisathome/tao"
-  :license {:name "Eclipse"
+  :author "Dylan Butman"
+  :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
+  :lein-release {:deploy-via :clojars}
 
   :jvm-opts ^:replace ["-Xms512m" "-Xmx512m" "-server"]
 
