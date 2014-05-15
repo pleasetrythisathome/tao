@@ -69,35 +69,33 @@
 (defn get-path [key translators]
   (conj (get-in translators [key :path]) key))
 
-(defn matcher->route [matcher args]
+(defn matcher->route [matcher {:keys [params query-params]}]
   (let [parts (rest (split matcher "/")) ; drop leading space
         as-keys (map #(if (re-find #":" %)
                         (keyword (replace % #":" ""))
                         %) parts)
         subbed (map #(if (keyword? %)
-                       (% args)
+                       (% params)
                        %) as-keys)
-        route (join "/" subbed)
-        params (set (filter keyword? as-keys))
-        query-keys (filter #(not (% params)) (keys args))
-        query (select-keys args query-keys)]
+        route (join "/" subbed)]
     {:route route
-     :query query}))
+     :query query-params}))
 
-(defn translate-state [[matcher {:keys [params query-params validator]}] state]
-  (let [translators (merge params query-params)
-        korks (keys translators)
-        values (map (fn [key] (let [translator (key translators)
-                                   path (conj (:path translator) key)
-                                   value (get-in state path)
-                                   translated (when value
-                                                (when-let [tfn (:->route translator)]
-                                                 (tfn value)))]
-                               translated)) korks)
-        kv (zipmap korks values)
-        validator (or validator #(every? identity (vals %)))]
-    (when (validator (apply dissoc kv (keys query-params)))
-      (matcher->route matcher kv))))
+(defn translate-state [[matcher {:keys [validator] :as translators}] state]
+  (letfn [(translate [group]
+            (reduce-kv (fn [out k {:keys [path ->route ]}]
+                         (let [value (get-in state (conj path k))
+                               processor (or ->route identity)
+                               translated (processor value)]
+                           (assoc out k translated)))
+                       {} group))]
+    (let [translated (reduce-kv (fn [out k v]
+                                  (assoc out k (translate v)))
+                                {}
+                                (select-keys translators [:params :query-params]))
+          validator (or validator #(every? identity (vals %)))]
+      (when (validator (:params translated))
+        (matcher->route matcher translated)))))
 
 (defn state->route [state]
   (let [mappings (map #(translate-state % state) @state-mappings)
