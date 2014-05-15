@@ -51,6 +51,13 @@
 
 (def nav-chan (chan))
 
+(deftao home "/"
+  {:chan nav-chan
+   :constants {:active {:path []
+                        :->state (constantly :admin)}
+               :search {:path []
+                        :->state (constantly "")}}})
+
 (deftao section "/:active"
   {:chan nav-chan
    :params {:active {:path []
