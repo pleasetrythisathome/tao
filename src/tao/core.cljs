@@ -96,7 +96,7 @@
                                translated)) korks)
         kv (zipmap korks values)
         validator (or validator #(every? identity (vals %)))]
-    (when (validator kv)
+    (when (validator (apply dissoc kv (keys query-params)))
       (matcher->route matcher kv))))
 
 (defn state->route [state]
