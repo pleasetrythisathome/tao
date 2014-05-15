@@ -42,8 +42,9 @@
        (reset! history hist)
        (events/listen hist EventType/NAVIGATE #(put! navigation %))
        (go-loop []
-                (when-let [token (.-token (<! navigation))]
-                  (secretary/dispatch! token)
+                (when-let [e (<! navigation)]
+                  (when (.-isNavigation e)
+                    (secretary/dispatch! (.-token e)))
                   (recur)))
        (secretary/dispatch! (.getToken hist)))))
 
@@ -86,7 +87,8 @@
             (reduce-kv (fn [out k {:keys [path ->route ]}]
                          (let [value (get-in state (conj path k))
                                processor (or ->route identity)
-                               translated (processor value)]
+                               translated (when value
+                                            (processor value))]
                            (assoc out k translated)))
                        {} group))]
     (let [translated (reduce-kv (fn [out k v]
