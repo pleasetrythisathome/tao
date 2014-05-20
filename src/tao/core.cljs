@@ -40,7 +40,7 @@
                     h))
            navigation (chan)]
        (reset! history hist)
-       (events/listen hist EventType/NAVIGATE #(put! navigation %))
+       (events/listen hist EventType.NAVIGATE #(put! navigation %))
        (go-loop []
                 (when-let [e (<! navigation)]
                   (when (.-isNavigation e)
@@ -54,7 +54,10 @@
      (let [token (.getToken @history)
            old-route (first (split token "?"))
            new-route (str "/" route)
-           query-string (map->params query)
+           query-string (map->params (reduce-kv (fn [valid k v]
+                                                  (if v
+                                                    (assoc valid k v)
+                                                    valid)) {} query))
            with-params (if (empty? query-string)
                          new-route
                          (str new-route "?" query-string))]

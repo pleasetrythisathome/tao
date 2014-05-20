@@ -65,11 +65,12 @@
                      :->route name}}
    :query-params {:search {:path []
                            :->state identity
-                           :->route identity}}})
+                           :->route #(when-not (= "" %)
+                                      %)}}})
 
 ;; you should really use push-state and set up
 ;; your backend to forward all routes to the front end
-(tao/init-history {:push-state false})
+(tao/init-history {:push-state true})
 
 (om/root app-view app-state
          {:target (.getElementById js/document "app")
