@@ -8,7 +8,7 @@ Tao is a thin wrapper on top of [secretary](https://github.com/gf3/secretary). A
 
 Add tao to your ```project.clj``` ```:dependencies``` vector:
 
-```[pleasetrythisathome/tao "0.1.4"]```
+```[pleasetrythisathome/tao "0.1.5"]```
 
 ## The Way
 
